@@ -23,17 +23,65 @@ class _BanderaArgentinaPageState extends State<BanderaArgentinaPage> {
       franjas: [Colors.lightBlue, Colors.white, Colors.lightBlue],
       tipo: TipoBandera.horizontal,
     ),
-
     Pais(
       nombre: 'Francia',
       franjas: [Colors.blue, Colors.white, Colors.red],
       tipo: TipoBandera.vertical,
     ),
-
     Pais(
       nombre: 'Italia',
       franjas: [Colors.green, Colors.white, Colors.red],
       tipo: TipoBandera.vertical,
+    ),
+    Pais(
+      nombre: 'Alemania',
+      franjas: [Colors.black, Colors.red, Colors.yellow],
+      tipo: TipoBandera.horizontal,
+    ),
+    Pais(
+      nombre: 'Costa de Marfil',
+      franjas: [Color(0xFFF77F00), Colors.white, Color(0xFF009E60)],
+      tipo: TipoBandera.vertical,
+    ),
+    Pais(
+      nombre: 'Paises Bajos',
+      franjas: [Colors.red, Colors.white, Color(0xFF21468B)],
+      tipo: TipoBandera.horizontal,
+    ),
+    Pais(
+      nombre: 'Egipto',
+      franjas: [Colors.red, Colors.white, Colors.black],
+      tipo: TipoBandera.horizontal,
+    ),
+    Pais(
+      nombre: 'Belgica',
+      franjas: [Colors.black, Colors.red, Colors.yellow],
+      tipo: TipoBandera.vertical,
+    ),
+    Pais(
+      nombre: 'Irak',
+      franjas: [Colors.red, Colors.white, Colors.black],
+      tipo: TipoBandera.horizontal,
+    ),
+    Pais(
+      nombre: 'Austria',
+      franjas: [Colors.red, Colors.white, Colors.red],
+      tipo: TipoBandera.horizontal,
+    ),
+    Pais(
+      nombre: 'Uzbekistan',
+      franjas: [Color(0xFF0099B5), Colors.white, Color(0xFF1EB53A)],
+      tipo: TipoBandera.horizontal,
+    ),
+    Pais(
+      nombre: 'Ghana',
+      franjas: [Colors.red, Colors.yellow, Colors.green],
+      tipo: TipoBandera.horizontal,
+    ),
+    Pais(
+      nombre: 'España',
+      franjas: [Colors.red, Colors.yellow, Colors.red],
+      tipo: TipoBandera.horizontal,
     ),
   ];
 
