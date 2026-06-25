@@ -1,11 +1,10 @@
-import 'package:flutter/painting.dart';
-import 'package:flutter/material.dart';
+import 'package:mi_paint/modelos/franja.dart';
 
 enum TipoBandera { horizontal, vertical }
 
 class Pais {
   final String nombre;
-  final List<Color> franjas;
+  final List<Franja> franjas;
   final TipoBandera tipo;
 
   const Pais({required this.nombre, required this.franjas, required this.tipo});

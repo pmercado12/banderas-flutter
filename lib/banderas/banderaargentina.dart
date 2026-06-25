@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mi_paint/modelos/pais.dart';
 import 'package:mi_paint/modelos/zonabandera.dart';
+import 'package:mi_paint/modelos/franja.dart';
+import 'package:mi_paint/modelos/paises_data.dart';
 
 class BanderaArgentinaPage extends StatefulWidget {
   const BanderaArgentinaPage({super.key});
@@ -11,83 +13,21 @@ class BanderaArgentinaPage extends StatefulWidget {
 
 class _BanderaArgentinaPageState extends State<BanderaArgentinaPage> {
   Color colorSeleccionado = Colors.lightBlue;
-  static const Color colorSinPintar = Color(0xFFF0F0F0);
+  static Color colorSinPintar = Color(0xFFF0F0F0);
 
   final zonaSuperior = ZonaBandera(colorCorrecto: Colors.lightBlue);
   final zonaCentral = ZonaBandera(colorCorrecto: Colors.white);
   final zonaInferior = ZonaBandera(colorCorrecto: Colors.lightBlue);
 
-  final List<Pais> paises = [
-    Pais(
-      nombre: 'Argentina',
-      franjas: [Colors.lightBlue, Colors.white, Colors.lightBlue],
-      tipo: TipoBandera.horizontal,
-    ),
-    Pais(
-      nombre: 'Francia',
-      franjas: [Colors.blue, Colors.white, Colors.red],
-      tipo: TipoBandera.vertical,
-    ),
-    Pais(
-      nombre: 'Italia',
-      franjas: [Colors.green, Colors.white, Colors.red],
-      tipo: TipoBandera.vertical,
-    ),
-    Pais(
-      nombre: 'Alemania',
-      franjas: [Colors.black, Colors.red, Colors.yellow],
-      tipo: TipoBandera.horizontal,
-    ),
-    Pais(
-      nombre: 'Costa de Marfil',
-      franjas: [Color(0xFFF77F00), Colors.white, Color(0xFF009E60)],
-      tipo: TipoBandera.vertical,
-    ),
-    Pais(
-      nombre: 'Paises Bajos',
-      franjas: [Colors.red, Colors.white, Color(0xFF21468B)],
-      tipo: TipoBandera.horizontal,
-    ),
-    Pais(
-      nombre: 'Egipto',
-      franjas: [Colors.red, Colors.white, Colors.black],
-      tipo: TipoBandera.horizontal,
-    ),
-    Pais(
-      nombre: 'Belgica',
-      franjas: [Colors.black, Colors.red, Colors.yellow],
-      tipo: TipoBandera.vertical,
-    ),
-    Pais(
-      nombre: 'Irak',
-      franjas: [Colors.red, Colors.white, Colors.black],
-      tipo: TipoBandera.horizontal,
-    ),
-    Pais(
-      nombre: 'Austria',
-      franjas: [Colors.red, Colors.white, Colors.red],
-      tipo: TipoBandera.horizontal,
-    ),
-    Pais(
-      nombre: 'Uzbekistan',
-      franjas: [Color(0xFF0099B5), Colors.white, Color(0xFF1EB53A)],
-      tipo: TipoBandera.horizontal,
-    ),
-    Pais(
-      nombre: 'Ghana',
-      franjas: [Colors.red, Colors.yellow, Colors.green],
-      tipo: TipoBandera.horizontal,
-    ),
-    Pais(
-      nombre: 'España',
-      franjas: [Colors.red, Colors.yellow, Colors.red],
-      tipo: TipoBandera.horizontal,
-    ),
-  ];
+  final List<Pais> paises = paisesData;
 
-  Pais paisActual = const Pais(
+  Pais paisActual = Pais(
     nombre: "Argentina",
-    franjas: [Colors.lightBlue, Colors.white, Colors.lightBlue],
+    franjas: [
+      Franja(colorCorrecto: Colors.lightBlue, flex: 1),
+      Franja(colorCorrecto: Colors.white, flex: 1),
+      Franja(colorCorrecto: Colors.lightBlue, flex: 1),
+    ],
     tipo: TipoBandera.horizontal,
   );
 
@@ -97,14 +37,8 @@ class _BanderaArgentinaPageState extends State<BanderaArgentinaPage> {
   void initState() {
     super.initState();
 
-    paletaActual = paisActual.franjas.toSet().toList();
+    paletaActual = paisActual.franjas.map((f) => f.colorCorrecto).toList();
     paletaActual.shuffle();
-  }
-
-  void pintarZona(ZonaBandera zona) {
-    setState(() {
-      zona.colorActual = colorSeleccionado;
-    });
   }
 
   bool banderaCorrecta() {
@@ -153,7 +87,10 @@ class _BanderaArgentinaPageState extends State<BanderaArgentinaPage> {
           // COLORES
           Wrap(
             spacing: 10,
-            children: paletaActual.map((color) => colorBoton(color)).toList(),
+            children: paletaActual
+                .toSet()
+                .map((color) => colorBoton(color))
+                .toList(),
           ),
 
           const SizedBox(height: 20),
@@ -203,53 +140,91 @@ class _BanderaArgentinaPageState extends State<BanderaArgentinaPage> {
     setState(() {
       paisActual = pais;
 
-      zonaSuperior.colorCorrecto = pais.franjas[0];
-      zonaCentral.colorCorrecto = pais.franjas[1];
-      zonaInferior.colorCorrecto = pais.franjas[2];
+      for (final f in pais.franjas) {
+        f.colorActual = colorSinPintar;
+      }
 
-      // limpiar la bandera
-      zonaSuperior.colorActual = colorSinPintar;
-      zonaCentral.colorActual = colorSinPintar;
-      zonaInferior.colorActual = colorSinPintar;
-
-      // seleccionar un color por defecto
-      paletaActual = pais.franjas.toSet().toList();
+      paletaActual = pais.franjas.map((f) => f.colorCorrecto).toList();
       paletaActual.shuffle();
 
       colorSeleccionado = paletaActual.first;
     });
   }
 
+  void pintarColor(Color color) {
+    setState(() {
+      if (zonaSuperior.colorActual == colorSinPintar) {
+        zonaSuperior.colorActual = color;
+        return;
+      }
+
+      if (zonaCentral.colorActual == colorSinPintar) {
+        zonaCentral.colorActual = color;
+        return;
+      }
+
+      if (zonaInferior.colorActual == colorSinPintar) {
+        zonaInferior.colorActual = color;
+        return;
+      }
+    });
+  }
+
   Widget banderaHorizontal() {
-    return Column(
-      children: [
-        zonaWidget(zonaSuperior),
-        Container(height: 2, color: Colors.black),
-        zonaWidget(zonaCentral),
-        Container(height: 2, color: Colors.black),
-        zonaWidget(zonaInferior),
-      ],
-    );
+    final widgets = <Widget>[];
+
+    for (int i = 0; i < paisActual.franjas.length; i++) {
+      final f = paisActual.franjas[i];
+
+      widgets.add(
+        Expanded(
+          flex: f.flex,
+          child: GestureDetector(
+            onTap: () {
+              setState(() {
+                f.colorActual = colorSeleccionado;
+              });
+            },
+            child: Container(color: f.colorActual),
+          ),
+        ),
+      );
+
+      // 🔥 línea separadora (excepto la última)
+      if (i != paisActual.franjas.length - 1) {
+        widgets.add(Container(height: 2, color: Colors.black));
+      }
+    }
+
+    return Column(children: widgets);
   }
 
   Widget banderaVertical() {
-    return Row(
-      children: [
-        zonaWidget(zonaSuperior),
-        Container(width: 2, color: Colors.black),
-        zonaWidget(zonaCentral),
-        Container(width: 2, color: Colors.black),
-        zonaWidget(zonaInferior),
-      ],
-    );
-  }
+    final widgets = <Widget>[];
 
-  Widget zonaWidget(ZonaBandera zona) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => pintarZona(zona),
-        child: Container(color: zona.colorActual),
-      ),
-    );
+    for (int i = 0; i < paisActual.franjas.length; i++) {
+      final f = paisActual.franjas[i];
+
+      widgets.add(
+        Expanded(
+          flex: f.flex,
+          child: GestureDetector(
+            onTap: () {
+              setState(() {
+                f.colorActual = colorSeleccionado;
+              });
+            },
+            child: Container(color: f.colorActual),
+          ),
+        ),
+      );
+
+      // 🔥 separador vertical
+      if (i != paisActual.franjas.length - 1) {
+        widgets.add(Container(width: 2, color: Colors.black));
+      }
+    }
+
+    return Row(children: widgets);
   }
 }
