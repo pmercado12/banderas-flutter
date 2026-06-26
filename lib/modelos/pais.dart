@@ -3,9 +3,17 @@ import 'package:mi_paint/modelos/franja.dart';
 enum TipoBandera { horizontal, vertical }
 
 class Pais {
-  final String nombre;
-  final List<Franja> franjas;
-  final TipoBandera tipo;
+  String nombre;
+  TipoBandera tipo;
+  List<Franja> franjas;
 
-  const Pais({required this.nombre, required this.franjas, required this.tipo});
+  Pais({required this.nombre, required this.tipo, required this.franjas});
+
+  Pais copy() {
+    return Pais(
+      nombre: nombre,
+      tipo: tipo,
+      franjas: franjas.map((f) => f.copy()).toList(),
+    );
+  }
 }
