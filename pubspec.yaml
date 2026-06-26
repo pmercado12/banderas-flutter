@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_colorpicker: ^1.1.0
+  confetti: ^0.8.0
 
 dev_dependencies:
   flutter_test:

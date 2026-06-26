@@ -3,6 +3,7 @@ import 'package:mi_paint/modelos/pais.dart';
 import 'package:mi_paint/modelos/zonabandera.dart';
 import 'package:mi_paint/modelos/franja.dart';
 import 'package:mi_paint/modelos/paises_data.dart';
+import 'package:confetti/confetti.dart';
 
 class BanderaArgentinaPage extends StatefulWidget {
   const BanderaArgentinaPage({super.key});
@@ -33,18 +34,33 @@ class _BanderaArgentinaPageState extends State<BanderaArgentinaPage> {
 
   List<Color> paletaActual = [];
 
+  late ConfettiController _confettiController;
+
   @override
   void initState() {
     super.initState();
+
+    _confettiController = ConfettiController(
+      duration: const Duration(seconds: 2),
+    );
 
     paletaActual = paisActual.franjas.map((f) => f.colorCorrecto).toList();
     paletaActual.shuffle();
   }
 
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
+  }
+
   bool banderaCorrecta() {
-    return zonaSuperior.colorActual == zonaSuperior.colorCorrecto &&
-        zonaCentral.colorActual == zonaCentral.colorCorrecto &&
-        zonaInferior.colorActual == zonaInferior.colorCorrecto;
+    for (final franja in paisActual.franjas) {
+      if (franja.colorActual != franja.colorCorrecto) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @override
@@ -52,63 +68,80 @@ class _BanderaArgentinaPageState extends State<BanderaArgentinaPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Pinta Argentina')),
 
-      body: Column(
+      body: Stack(
         children: [
-          const SizedBox(height: 20),
-          Wrap(
-            spacing: 8,
-            children: paises.map((pais) {
-              return ChoiceChip(
-                label: Text(pais.nombre),
-                selected: paisActual.nombre == pais.nombre,
-                onSelected: (_) => cambiarPais(pais),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 20),
-          // BANDERA
-          Center(
-            child: SizedBox(
-              height: 140, // 👈 controla el tamaño
-              width: 210, // 3:2 proporcional
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black, width: 2),
-                ),
-                child: paisActual.tipo == TipoBandera.horizontal
-                    ? banderaHorizontal()
-                    : banderaVertical(),
+          Column(
+            children: [
+              const SizedBox(height: 20),
+              Wrap(
+                spacing: 8,
+                children: paises.map((pais) {
+                  return ChoiceChip(
+                    label: Text(pais.nombre),
+                    selected: paisActual.nombre == pais.nombre,
+                    onSelected: (_) => cambiarPais(pais),
+                  );
+                }).toList(),
               ),
-            ),
-          ),
-
-          const SizedBox(height: 30),
-
-          // COLORES
-          Wrap(
-            spacing: 10,
-            children: paletaActual
-                .toSet()
-                .map((color) => colorBoton(color))
-                .toList(),
-          ),
-
-          const SizedBox(height: 20),
-
-          // BOTÓN
-          ElevatedButton(
-            onPressed: () {
-              final correcto = banderaCorrecta();
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    correcto ? '✅ Correcto' : '❌ Intenta nuevamente',
+              const SizedBox(height: 20),
+              // BANDERA
+              Center(
+                child: SizedBox(
+                  height: 140, // 👈 controla el tamaño
+                  width: 210, // 3:2 proporcional
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black, width: 2),
+                    ),
+                    child: paisActual.tipo == TipoBandera.horizontal
+                        ? banderaHorizontal()
+                        : banderaVertical(),
                   ),
                 ),
-              );
-            },
-            child: const Text('Verificar'),
+              ),
+
+              const SizedBox(height: 30),
+
+              // COLORES
+              Wrap(
+                spacing: 10,
+                children: paletaActual
+                    .toSet()
+                    .map((color) => colorBoton(color))
+                    .toList(),
+              ),
+
+              const SizedBox(height: 20),
+
+              // BOTÓN
+              ElevatedButton(
+                onPressed: () {
+                  final correcto = banderaCorrecta();
+
+                  if (correcto) {
+                    _confettiController.play();
+                  }
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        correcto ? '✅ Correcto' : '❌ Intenta nuevamente',
+                      ),
+                    ),
+                  );
+                },
+                child: const Text('Verificar'),
+              ),
+            ],
+          ),
+          Align(
+            alignment: Alignment.topCenter,
+            child: ConfettiWidget(
+              confettiController: _confettiController,
+              blastDirectionality: BlastDirectionality.explosive,
+              shouldLoop: false,
+              numberOfParticles: 25,
+            ),
           ),
         ],
       ),
