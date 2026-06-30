@@ -40,6 +40,8 @@ class _BanderaArgentinaPageState extends State<BanderaArgentinaPage> {
 
   List<Pais> paisesFiltrados = [];
 
+  final Set<String> paisesCompletados = {};
+
   @override
   void initState() {
     super.initState();
@@ -69,106 +71,201 @@ class _BanderaArgentinaPageState extends State<BanderaArgentinaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Pintando Banderas')),
+      appBar: AppBar(
+        title: const Text("PINTANDO BANDERAS"),
+        centerTitle: true,
+        backgroundColor: const Color(0xFF00ACC1),
+        foregroundColor: Colors.white,
+      ),
+      body: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFB3E5FC), Colors.white],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                const SizedBox(height: 20),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: paisesFiltrados.map((pais) {
+                    final completado = paisesCompletados.contains(pais.nombre);
+                    final seleccionado = paisActual.nombre == pais.nombre;
 
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              const SizedBox(height: 20),
-              Wrap(
-                spacing: 8,
-                children: paisesFiltrados.map((pais) {
-                  return ChoiceChip(
-                    label: Text(pais.nombre),
-                    selected: paisActual.nombre == pais.nombre,
-                    onSelected: (_) => cambiarPais(pais),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                "🎨 ${paisActual.nombre}",
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.indigo,
-                ),
-              ),
-              const SizedBox(height: 10),
-              // BANDERA
-              Center(
-                child: AnimatedScale(
-                  scale: escalaBandera,
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeOut,
-                  child: SizedBox(
-                    height: 140,
-                    width: 210,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.black, width: 2),
+                    return ChoiceChip(
+                      label: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            pais.nombre,
+                            style: TextStyle(
+                              color: completado || seleccionado
+                                  ? Colors.white
+                                  : Colors.black87,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+
+                          if (completado) ...[
+                            const SizedBox(width: 4),
+                            const Icon(
+                              Icons.check_circle,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                          ],
+                        ],
                       ),
-                      child: paisActual.tipo == TipoBandera.horizontal
-                          ? banderaHorizontal()
-                          : banderaVertical(),
+
+                      selected: seleccionado,
+
+                      selectedColor: const Color(0xFF00ACC1),
+
+                      backgroundColor: completado
+                          ? Colors.green
+                          : Colors.grey.shade200,
+
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+
+                      onSelected: (_) => cambiarPais(pais),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  "🎨 ${paisActual.nombre}",
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.indigo,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // BANDERA
+                Center(
+                  child: Card(
+                    color: Colors.white.withOpacity(0.95),
+                    elevation: 10,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(18),
+                      child: AnimatedScale(
+                        scale: escalaBandera,
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeOut,
+                        child: SizedBox(
+                          height: 140,
+                          width: 210,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.black, width: 2),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                            child: paisActual.tipo == TipoBandera.horizontal
+                                ? banderaHorizontal()
+                                : banderaVertical(),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 30),
+                const SizedBox(height: 30),
 
-              // COLORES
-              Wrap(
-                spacing: 10,
-                children: paletaActual
-                    .toSet()
-                    .map((color) => colorBoton(color))
-                    .toList(),
-              ),
+                // COLORES
+                Wrap(
+                  spacing: 10,
+                  children: paletaActual
+                      .toSet()
+                      .map((color) => colorBoton(color))
+                      .toList(),
+                ),
 
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-              // BOTÓN
-              ElevatedButton(
-                onPressed: () async {
-                  final correcto = banderaCorrecta();
-
-                  if (correcto) {
-                    banderasCompletadas++;
-                    _confettiController.play();
-                    await animarBandera();
-                  }
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        correcto ? '✅ Correcto' : '❌ Intenta nuevamente',
+                // BOTÓN
+                SizedBox(
+                  width: 200,
+                  height: 55,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.check_circle_outline),
+                    label: const Text(
+                      "VERIFICAR",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  );
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF00ACC1),
+                      foregroundColor: Colors.white,
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                    ),
+                    onPressed: () async {
+                      if (banderaIncompleta()) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            behavior: SnackBarBehavior.floating,
+                            backgroundColor: Colors.orange,
+                            content: Text(
+                              "🟡 Te faltan casillas por pintar",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+                      final correcto = banderaCorrecta();
 
-                  if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          behavior: SnackBarBehavior.floating,
+                          backgroundColor: correcto
+                              ? Colors.green
+                              : Colors.redAccent,
+                          content: Text(
+                            correcto
+                                ? "🎉 ¡Bandera correcta!"
+                                : "❌ Parece que estás pintando la bandera de otro país",
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      );
 
-                  if (correcto) {
-                    await siguientePais();
-                  }
-                },
-                child: const Text('Verificar'),
-              ),
-            ],
-          ),
-          Align(
-            alignment: Alignment.topCenter,
-            child: ConfettiWidget(
-              confettiController: _confettiController,
-              blastDirectionality: BlastDirectionality.explosive,
-              shouldLoop: false,
-              numberOfParticles: 25,
+                      if (!correcto) return;
+
+                      await procesarResultado();
+                    },
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
+            Align(
+              alignment: Alignment.topCenter,
+              child: ConfettiWidget(
+                confettiController: _confettiController,
+                blastDirectionality: BlastDirectionality.explosive,
+                shouldLoop: false,
+                numberOfParticles: 25,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -181,13 +278,14 @@ class _BanderaArgentinaPageState extends State<BanderaArgentinaPage> {
         });
       },
       child: Container(
-        width: 50,
-        height: 50,
+        width: 54,
+        height: 54,
         decoration: BoxDecoration(
           color: color,
+          shape: BoxShape.circle,
           border: Border.all(
-            width: colorSeleccionado == color ? 4 : 1,
             color: Colors.black,
+            width: colorSeleccionado == color ? 4 : 2,
           ),
         ),
       ),
@@ -202,11 +300,11 @@ class _BanderaArgentinaPageState extends State<BanderaArgentinaPage> {
         f.colorActual = colorSinPintar;
       }
 
-      for (int i = 0; i < paisesFiltrados.length; i++) {
+      /*for (int i = 0; i < paisesFiltrados.length; i++) {
         if (paisesFiltrados[i].nombre == pais.nombre) {
           indicePais = i;
         }
-      }
+      }*/
 
       //paletaActual = pais.franjas.map((f) => f.colorCorrecto).toList();
       //paletaActual.shuffle();
@@ -292,9 +390,11 @@ class _BanderaArgentinaPageState extends State<BanderaArgentinaPage> {
   }
 
   Future<void> siguientePais() async {
-    indicePais++;
+    final restantes = paisesFiltrados
+        .where((p) => !paisesCompletados.contains(p.nombre))
+        .toList();
 
-    if (indicePais >= paisesFiltrados.length) {
+    if (restantes.isEmpty) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -306,7 +406,8 @@ class _BanderaArgentinaPageState extends State<BanderaArgentinaPage> {
       );
       return;
     }
-    cambiarPais(paisesFiltrados[indicePais]);
+
+    cambiarPais(restantes.first);
   }
 
   Future<void> mostrarDialogoFinal() async {
@@ -350,7 +451,7 @@ class _BanderaArgentinaPageState extends State<BanderaArgentinaPage> {
           break;
 
         case Dificultad.intermedio:
-          paisesFiltrados = paises.take(12).map((p) => p.copy()).toList();
+          paisesFiltrados = paises.take(6).map((p) => p.copy()).toList();
           break;
 
         case Dificultad.avanzado:
@@ -378,13 +479,30 @@ class _BanderaArgentinaPageState extends State<BanderaArgentinaPage> {
         Colors.grey,
         Colors.brown,
         Colors.orange,
-        Colors.pink,
-        Colors.purple,
-        Colors.teal,
       ]);
     }
 
     paletaActual.shuffle();
     colorSeleccionado = paletaActual.first;
+  }
+
+  Future<void> procesarResultado() async {
+    paisesCompletados.add(paisActual.nombre);
+    banderasCompletadas++;
+
+    _confettiController.play();
+    await animarBandera();
+
+    await siguientePais();
+  }
+
+  bool banderaIncompleta() {
+    for (final franja in paisActual.franjas) {
+      if (franja.colorActual == colorSinPintar ||
+          franja.colorActual == Colors.transparent) {
+        return true;
+      }
+    }
+    return false;
   }
 }
